@@ -1,11 +1,24 @@
-import React from 'react'
+import React, {useReducer } from 'react'
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 
-import { IExchangeInputs } from '../../types'
+import { initialState, currencyReducer} from '../../store/index'
 
-export const ExchangeInputs: React.FC<IExchangeInputs> = ({ classes, currencys, setbuySellChoice, buySellChoice, BuySell, setCurrentValue, currentValue, calculateValue, resultValue }) => {
+import { IExchangeInputs, TCurrency } from '../../types'
+
+export const ExchangeInputs: React.FC<IExchangeInputs> = ({ classes, currencys, BuySell }) => {
+
+
+  const calculateValue = (passsedValue: number) => {
+    const currentCurrency = currencys.find(elem => elem.currency === currentValue)
+    const result = passsedValue * (buySellChoice ? currentCurrency!.saleRate : currentCurrency!.purchaseRate);
+    dispatch({type: 'changeResultValue', fieldName: 'resultValue', value: result})
+  }
+
+  const [state, dispatch] = useReducer(currencyReducer, initialState);
+  const { currentValue, resultValue, buySellChoice } = state;
+
   return (
     <Paper className={classes.tableWrapper} elevation={2}>
       <form noValidate autoComplete="off">
@@ -15,13 +28,13 @@ export const ExchangeInputs: React.FC<IExchangeInputs> = ({ classes, currencys, 
               className={classes.select}
               id="standard-select-currency-native"
               select
-              onChange={() => { setbuySellChoice(!buySellChoice) }}
+              onChange={() => { dispatch({ type: 'changeBuySell' }) }}
               SelectProps={{
                 native: true,
               }}
               helperText="Buy or Sell?"
             >
-              {BuySell.map((option): any => (
+              {BuySell.map((option) => (
                 <option key={option.index} value={option.name}>
                   {option.name}
                 </option>
@@ -33,15 +46,14 @@ export const ExchangeInputs: React.FC<IExchangeInputs> = ({ classes, currencys, 
               select
               value={currentValue}
               onChange={(e) => {
-                const selectedCurrency = e.target.value
-                setCurrentValue(selectedCurrency)
+                dispatch({type: 'changeCurrentCurrency', fieldName: 'currentValue', value: e.currentTarget.value})
               }}
               SelectProps={{
                 native: true,
               }}
               helperText="Please select currency"
             >
-              {currencys.map((currency: any, i: any) => (
+              {currencys.map((currency: TCurrency, i: number) => (
                 <option key={i} value={currency.currency}>
                   {currency.currency}
                 </option>

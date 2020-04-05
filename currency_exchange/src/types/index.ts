@@ -24,11 +24,12 @@ export interface IExchangeTable {
 export interface IExchangeInputs {
   classes: any,
   currencys: TCurrency[],
-  setbuySellChoice: any,
-  setCurrentValue: any,
-  buySellChoice: boolean,
   BuySell: IBuySell[],
+  resultValue: number | null
+}
+
+export interface IReducer {
+  buySellChoice: boolean,
   currentValue: string,
-  calculateValue: any,
   resultValue: number | null
 }

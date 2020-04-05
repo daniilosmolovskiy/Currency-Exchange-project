@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import axios from 'axios'
 import styled from 'styled-components'
 import { makeStyles } from '@material-ui/core/styles';
@@ -9,6 +9,8 @@ import { ExchangeTable } from './Components/ExchangeTable/ExchangeTable'
 import { ExchangeInputs } from './Components/ExchangeInputs/ExchangeInputs'
 
 import { TCurrency, IHeaders, IBuySell } from './types'
+
+import { currencyReducer, initialState, Context } from './store/index'
 
 const StyledContainer = styled(Container)`
     display: flex;
@@ -44,10 +46,10 @@ const useStyles = makeStyles({
 
 function App() {
 
+  const [state] = useReducer(currencyReducer, initialState);
+  const { resultValue } = state;
+
   const [currencys, setCurrencys] = useState<TCurrency[]>([])
-  const [resultValue, setResultValue] = useState<number | null>(null)
-  const [currentValue, setCurrentValue] = useState<string>('CZK')
-  const [buySellChoice, setbuySellChoice] = useState<boolean>(true)
   const classes = useStyles();
 
   let dateFormat = new Date();
@@ -55,12 +57,6 @@ function App() {
   let mm = String(dateFormat.getMonth() + 1).padStart(2, '0');
   let yyyy = dateFormat.getFullYear();
   const date = dd + '.' + mm + '.' + yyyy;
-
-  const calculateValue = (passsedValue: number) => {
-    const currentCurrency = currencys.find(elem => elem.currency === currentValue)
-    const result = passsedValue * (buySellChoice ? currentCurrency!.saleRate : currentCurrency!.purchaseRate);
-    setResultValue(result)
-  }
 
   useEffect(() => {
     axios
@@ -84,13 +80,15 @@ function App() {
 
   return (
     <>
-      <Typography variant="h3" component="h1" align="center">
-        Currency Exchange App
+      <Context.Provider value={initialState.buySellChoice}>
+        <Typography variant="h3" component="h1" align="center">
+          Currency Exchange App
       </Typography>
-      <StyledContainer>
-        <ExchangeTable classes={classes} currencys={currencys} headers={headers} />
-        <ExchangeInputs classes={classes} currencys={currencys} setbuySellChoice={setbuySellChoice} buySellChoice={buySellChoice} BuySell={BuySell} setCurrentValue={setCurrentValue} currentValue={currentValue} calculateValue={calculateValue} resultValue={resultValue} />
-      </StyledContainer>
+        <StyledContainer>
+          <ExchangeTable classes={classes} currencys={currencys} headers={headers} />
+          <ExchangeInputs classes={classes} currencys={currencys} BuySell={BuySell} resultValue={resultValue} />
+        </StyledContainer>
+      </Context.Provider>
     </>
   );
 }
