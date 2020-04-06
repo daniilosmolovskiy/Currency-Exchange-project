@@ -6,6 +6,7 @@ export function currencyReducer(state: any, action: any) {
       return {
         ...state,
         buySellChoice: !state.buySellChoice,
+        resultValue: 0
       };
     }
     case 'changeCurrentCurrency': {
